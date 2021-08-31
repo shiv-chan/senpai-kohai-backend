@@ -25,9 +25,13 @@ router.post('/login', async (req, res) => {
 
 	try {
 		const userInfo = await SignupTable.findOne({ email });
-		await bcrypt.compare(password, userInfo.password);
-		console.log('login successfully!');
-		res.status(200).end();
+		const isPasswordMatched = await bcrypt.compare(password, userInfo.password);
+		if (!isPasswordMatched) {
+			throw new Error('wrong password!');
+		} else {
+			console.log('login successfully!');
+			res.status(200).end();
+		}
 	} catch (err) {
 		console.error(`Failed to find the matched user: ${err}`);
 		res.status(401).end();
