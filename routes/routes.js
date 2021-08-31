@@ -23,18 +23,15 @@ router.post('/signup', async (req, res) => {
 router.post('/login', async (req, res) => {
 	const { email, password } = req.body;
 
-	const userInfo = await SignupTable.findOne({ email }).catch((err) => {
-		console.error(`Failed to find the matched email: ${err}`);
-		res.redirect('/login');
-	});
-
-	await bcrypt.compare(password, userInfo.password).catch((err) => {
-		console.error(`Failed to find the matched password: ${err}`);
-		res.redirect('/login');
-	});
-
-	console.log('login successfully!');
-	res.redirect('/login');
+	try {
+		const userInfo = await SignupTable.findOne({ email });
+		await bcrypt.compare(password, userInfo.password);
+		console.log('login successfully!');
+		res.status(200).end();
+	} catch (err) {
+		console.error(`Failed to find the matched user: ${err}`);
+		res.status(401).end();
+	}
 });
 
 module.exports = router;
